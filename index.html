@@ -1,0 +1,41 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Teacher Login - Attendance System</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+  <div id="loader">Loading...</div>
+  <div class="login-container">
+    <h1>Admin/Teacher Login</h1>
+    <input type="text" id="teacherId" placeholder="Enter Teacher ID">
+    <button id="loginBtn">Login</button>
+  </div>
+
+  <audio id="success-sound" src="success.mp3"></audio>
+  <audio id="error-sound" src="error.mp3"></audio>
+
+  <script>
+    window.onload = () => {
+      gsap.to("#loader", { duration: 1, opacity: 0, display: "none" });
+    };
+
+    document.getElementById("loginBtn").addEventListener("click", function() {
+      const id = document.getElementById("teacherId").value;
+      if (id === "admin123") {
+        document.getElementById("success-sound").play();
+        gsap.to(".login-container", {
+          y: -500,
+          opacity: 0,
+          duration: 1,
+          onComplete: () => window.location.href = "student.html"
+        });
+      } else {
+        document.getElementById("error-sound").play();
+        gsap.from("#teacherId", { x: -10, repeat: 3, yoyo: true });
+      }
+    });
+  </script>
+</body>
+</html>
