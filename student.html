@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student Login</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body>
+  <div class="student-container">
+    <h1>Student Attendance</h1>
+    <input type="text" id="studentId" placeholder="Enter Student ID">
+    <button id="studentLoginBtn">Login</button>
+
+    <div id="timer" class="hidden">
+      <h2>Attendance Open: <span id="countdown"></span></h2>
+    </div>
+
+    <div id="attendance-section" class="hidden">
+      <h3>Mark Your Attendance</h3>
+      <button class="mark-btn" onclick="markAttendance()">Mark Present</button>
+      <div id="fly-icon">📘</div>
+    </div>
+  </div>
+
+  <script>
+    const flyIcon = document.getElementById("fly-icon");
+
+    document.getElementById("studentLoginBtn").addEventListener("click", () => {
+      const sid = document.getElementById("studentId").value;
+      if (sid) {
+        gsap.to(".student-container", { opacity: 1, duration: 1 });
+        document.getElementById("timer").classList.remove("hidden");
+        startCountdown();
+      }
+    });
+
+    function startCountdown() {
+      const now = new Date();
+      const start = new Date();
+      start.setHours(9, 0, 0);
+      const end = new Date();
+      end.setHours(10, 0, 0);
+
+      if (now >= start && now <= end) {
+        document.getElementById("attendance-section").classList.remove("hidden");
+        countdownInterval();
+      } else {
+        document.getElementById("countdown").innerText = "Attendance window closed.";
+      }
+    }
+
+    function countdownInterval() {
+      const end = new Date();
+      end.setHours(10, 0, 0);
+      const timer = setInterval(() => {
+        const now = new Date();
+        const diff = end - now;
+        if (diff <= 0) {
+          clearInterval(timer);
+          document.getElementById("countdown").innerText = "Time Over!";
+          document.getElementById("attendance-section").classList.add("hidden");
+        } else {
+          const mins = Math.floor((diff / 1000 / 60) % 60);
+          const secs = Math.floor((diff / 1000) % 60);
+          document.getElementById("countdown").innerText = `${mins}m ${secs}s`;
+        }
+      }, 1000);
+    }
+
+    function markAttendance() {
+      // Add animation to fly book icon
+      gsap.fromTo("#fly-icon", { y: 0, opacity: 1 }, { y: -100, opacity: 0, duration: 1 });
+      // Send student ID to backend to save in Word file
+      fetch("http://localhost:5000/mark", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId: document.getElementById("studentId").value })
+      })
+      .then(res => res.json())
+      .then(data => alert(data.message))
+      .catch(err => alert("Failed to mark attendance."));
+    }
+  </script>
+</body>
+</html>
